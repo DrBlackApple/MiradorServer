@@ -8,6 +8,8 @@
 #include <QMap>
 #include <QListWidget>
 
+#define MMDB "geoip.mmdb"
+
 
 class Listener : public QDialog
 {
@@ -17,7 +19,7 @@ class Listener : public QDialog
         Listener(int port, QListWidget *dest);
         ~Listener();
 
-        void getConnection(int id);
+        QTcpSocket* getConnection(QListWidgetItem *item) const;
 
     private slots:
         void newConnection();

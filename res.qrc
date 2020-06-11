@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>console-ico.png</file>
+        <file>keylog.png</file>
+    </qresource>
+    <qresource prefix="/font">
+        <file>Mermaid1001.ttf</file>
+    </qresource>
+</RCC>

@@ -1,6 +1,8 @@
 #include "listener.h"
 
+#include "libgeo++/GeoLite2PP.hpp"
 #include <QMessageBox>
+#include <QFileInfo>
 
 Listener::Listener(int port, QListWidget *dest)
 {
@@ -25,14 +27,39 @@ Listener::~Listener()
     delete _listener_sock;
 }
 
+QTcpSocket* Listener::getConnection(QListWidgetItem *item) const
+{
+    return _clients.key(item);
+}
+
 void Listener::newConnection()
 {
     QTcpSocket* cli = _listener_sock->nextPendingConnection();
     connect(cli, &QTcpSocket::disconnected, this, &Listener::clientDisconnected);
-    /* todo: add the client to the listview */
-    QListWidgetItem *item = new QListWidgetItem(cli->peerAddress().toString());
-    _list->addItem(item);
+    /* add the client to the listview */
+    QListWidgetItem *item = new QListWidgetItem;
+    QString print = QHostAddress(cli->peerAddress().toIPv4Address()).toString();
 
+    //retrieve location
+    if(QFileInfo(MMDB).exists()) {
+        GeoLite2PP::DB db{ MMDB };
+        auto field = db.get_all_fields(print.toStdString());
+        if(!field.empty()) {
+            print.append(" [");
+            auto it = field.find("country");
+            if(it != field.end())
+                print.append(it->first.c_str());
+            it = field.find("city");
+            if(it != field.end()) {
+                print.append("/");
+                print.append(it->first.c_str());
+            }
+            print.append("]");
+        }
+    }
+
+    item->setText(print);
+    _list->addItem(item);
 
     _clients.insert(cli, item);
 }
@@ -45,6 +72,8 @@ void Listener::clientDisconnected()
         auto item = _clients.take(sender);
         _list->removeItemWidget(item);
         _clients.remove(sender);
+        sender->close();
+        delete item;
     }
 
     //sender->deleteLater();
