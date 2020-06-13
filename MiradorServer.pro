@@ -26,6 +26,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     modules/clientshell.cpp \
+    modules/explorer.cpp \
     modules/keylogs.cpp
 
 HEADERS += \
@@ -39,11 +40,13 @@ HEADERS += \
     listener.h \
     mainwindow.h \
     modules/clientshell.h \
+    modules/explorer.h \
     modules/keylogs.h
 
 FORMS += \
     mainwindow.ui \
-    modules/clientshell.ui
+    modules/clientshell.ui \
+    modules/explorer.ui
 
 TRANSLATIONS += \
     MiradorServer_fr_FR.ts
