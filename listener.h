@@ -1,7 +1,7 @@
 #ifndef LISTENER_H
 #define LISTENER_H
 
-#include <QDialog>
+#include <QObject>
 #include <QObject>
 #include <QTcpSocket>
 #include <QTcpServer>
@@ -11,15 +11,18 @@
 #define MMDB "geoip.mmdb"
 
 
-class Listener : public QDialog
+class Listener : public QObject
 {
     Q_OBJECT
 
     public:
-        Listener(int port, QListWidget *dest);
-        ~Listener();
+        explicit Listener(QListWidget *dest, QObject *parent = Q_NULLPTR);
 
         QTcpSocket* getConnection(QListWidgetItem *item) const;
+        void startListening(int port);
+        void suspendListen();
+
+        bool isListening();
 
     private slots:
         void newConnection();
@@ -27,7 +30,7 @@ class Listener : public QDialog
 
     private:
         QTcpServer *_listener_sock = nullptr;
-        QMap<QTcpSocket *, QListWidgetItem *> _clients;
+        QMap<QTcpSocket*, QListWidgetItem *> _clients;
         QListWidget *_list = nullptr;
 
 };

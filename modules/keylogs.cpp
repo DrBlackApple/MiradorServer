@@ -36,6 +36,6 @@ void Keylogs::printData()
 
 void Keylogs::closeEvent(QCloseEvent *event)
 {
-    disconnect(this, SLOT(printData()));
+    _conn->disconnect(this);
     event->accept();
 }

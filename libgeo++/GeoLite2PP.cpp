@@ -82,8 +82,12 @@ MMDB_lookup_result_s GeoLite2PP::DB::lookup_raw( const std::string &ip_address )
 	if (gai_error)
 	{
         /// @throw std::invalid_argument if the address is invalid
+#ifdef _WIN32
         std::wstring error(gai_strerror(gai_error));
         throw std::invalid_argument( std::string(error.begin(), error.end()) );
+#else
+        throw std::invalid_argument( gai_strerror(gai_error) );
+#endif
 	}
 	if (mmdb_error)
 	{

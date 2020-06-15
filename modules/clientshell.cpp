@@ -9,6 +9,7 @@ ClientShell::ClientShell(QTcpSocket *connection, QWidget *parent)
     , _ui(new Ui::ClientShell)
 {
     _ui->setupUi(this);
+    _ui->input->setFocus();
 
     setWindowTitle(tr("Remote shell"));
     setWindowIcon(QIcon(":/img/console-ico.png"));
@@ -29,7 +30,7 @@ ClientShell::~ClientShell()
 void ClientShell::closeEvent(QCloseEvent *event)
 {
     _conn->write("exit\n");
-    disconnect(this, SLOT(printData()));
+    _conn->disconnect(this);
     event->accept();
 }
 

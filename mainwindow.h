@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QMenu>
+#include <QPointer>
 #include "listener.h"
 
 #include "modules/clientshell.h"
@@ -33,7 +34,7 @@ class MainWindow : public QMainWindow
         void clearWindows();
 
         Ui::MainWindow *ui = nullptr;
-        Listener *_li = nullptr;
+        Listener* _li;
         QMenu *_actions = nullptr;
 
         ClientShell *_rem_sh = nullptr;

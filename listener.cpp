@@ -4,27 +4,35 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-Listener::Listener(int port, QListWidget *dest)
+Listener::Listener(QListWidget *dest, QObject *parent) : QObject(parent), _clients()
 {
     _list = dest;
     _list->clear();
 
-    _listener_sock = new QTcpServer();
-    if(!_listener_sock->listen(QHostAddress::Any, port)) {
-        QMessageBox::critical(this, tr("Fatal error"),
-                              tr("Fatal error while trying to listen on %1: %2").arg(port).arg(_listener_sock->errorString()));
-        return;
-    }
+    _listener_sock = new QTcpServer(this);
 
     connect(_listener_sock, &QTcpServer::newConnection, this, &Listener::newConnection);
 }
 
-Listener::~Listener()
+bool Listener::isListening()
 {
-    for(auto it = _clients.begin(); it != _clients.end(); it++){
-        it.key()->close();
+    return _listener_sock->isListening();
+}
+
+void Listener::startListening(int port)
+{
+    if(!_listener_sock->listen(QHostAddress::Any, port)) {
+        QMessageBox::critical(nullptr, tr("Fatal error"),
+                              tr("Fatal error while trying to listen on %1: %2").arg(port).arg(_listener_sock->errorString()));
+        return;
     }
-    delete _listener_sock;
+}
+
+void Listener::suspendListen()
+{
+    /*for(auto it = _clients.begin(); it != _clients.end(); ++it)
+        it.key()->close();*/
+    _listener_sock->close();
 }
 
 QTcpSocket* Listener::getConnection(QListWidgetItem *item) const
@@ -43,7 +51,13 @@ void Listener::newConnection()
     //retrieve location
     if(QFileInfo(MMDB).exists()) {
         GeoLite2PP::DB db{ MMDB };
-        auto field = db.get_all_fields(print.toStdString());
+        GeoLite2PP::MStr field;
+        try {
+            field = db.get_all_fields(print.toStdString());
+        }
+        catch (...) {
+            field.clear();
+        }
         if(!field.empty()) {
             print.append(" [");
             auto it = field.find("country");
@@ -71,8 +85,9 @@ void Listener::clientDisconnected()
     if(_clients.contains(sender)) {
         auto item = _clients.take(sender);
         _list->removeItemWidget(item);
-        _clients.remove(sender);
         sender->close();
+        _clients.remove(sender);
+        sender->deleteLater();
         delete item;
     }
 

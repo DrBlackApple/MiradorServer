@@ -13,6 +13,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#define PACKAGE_VERSION "balec"
+
 #ifdef _WIN32
 #ifndef UNICODE
 #define UNICODE
